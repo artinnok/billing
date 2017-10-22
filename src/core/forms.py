@@ -7,10 +7,11 @@ class TransactionForm(forms.Form):
     sender = forms.ChoiceField(
         choices=list(Profile.objects.all().values_list('pk', 'inn')),
         label='Отправитель',
+        help_text='Выберите ИНН отправителя',
     )
     receiver_list = forms.CharField(
         label='Список получателей',
-        help_text='Через запятую',
+        help_text='Укажите ИНН получателей через запятую',
     )
     amount = forms.DecimalField(
         max_digits=12,
@@ -37,18 +38,14 @@ class TransactionForm(forms.Form):
         )
 
     def clean(self):
-        sender = self.cleaned_data['sender']
-
         try:
-            profile = Profile.objects.get(pk=sender)
+            profile = Profile.objects.get(pk=self.cleaned_data['sender'])
 
             if profile.balance < self.cleaned_data['amount']:
                 raise forms.ValidationError(
                     message='Not enough funds',
                     code='not_enough_funds',
                 )
-
-            return
 
         except Profile.DoesNotExist:
             raise forms.ValidationError(
