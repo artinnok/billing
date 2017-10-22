@@ -42,3 +42,36 @@ class Profile(models.Model):
     class Meta:
         verbose_name = 'юзер'
         verbose_name_plural = 'юзеры'
+
+    def __str__(self):
+        return self.user.username
+
+
+class Transaction(models.Model):
+    sender = models.ForeignKey(
+        'core.Profile',
+        verbose_name='отправитель',
+        related_name='sent_transaction_list',
+    )
+    amount = models.DecimalField(
+        verbose_name='сумма',
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+    )
+    receiver = models.ForeignKey(
+        'core.Profile',
+        verbose_name='получатель',
+        related_name='received_transaction_list',
+    )
+
+    class Meta:
+        verbose_name = 'транзакция'
+        verbose_name_plural = 'транзакции'
+
+    def __str__(self):
+        return 'Перевод от {sender} {receiver} в размере {amount}'.format(
+            sender=self.sender,
+            receiver=self.receiver,
+            amount=self.amount,
+        )
