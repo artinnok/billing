@@ -1,10 +1,14 @@
 import os
 
+from dotenv import load_dotenv
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+load_dotenv(os.path.join(BASE_DIR, 'config/.env'))
 
-SECRET_KEY = os.environ('SECRET_KEY')
+
+SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = True
 
@@ -61,7 +65,6 @@ DATABASES = {
         'PORT': 5432,
     }
 }
-
 
 
 AUTH_PASSWORD_VALIDATORS = [
