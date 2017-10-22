@@ -20,7 +20,6 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -43,7 +42,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*.cover
+*,cover
 .hypothesis/
 
 # Translations
@@ -52,14 +51,6 @@ coverage.xml
 
 # Django stuff:
 *.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -67,35 +58,41 @@ docs/_build/
 # PyBuilder
 target/
 
-# Jupyter Notebook
+#Ipython Notebook
 .ipynb_checkpoints
+.idea
 
-# pyenv
-.python-version
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100gs
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
 
-# celery beat schedule file
-celerybeat-schedule
+# PyCharm
+.idea/
+.idea_modules/
 
-# SageMath parsed files
-*.sage.py
+# static
+collect_static/
+static/build/
 
-# dotenv
-.env
+# media
+media/
 
-# virtualenv
-.venv
-venv/
-ENV/
+# node
+node_modules/
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# python-dotenv
+*.env
 
-# Rope project settings
-.ropeproject
+# SQLite
+db.sqlite3
 
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
+# keys
+*.pem
+*.key
