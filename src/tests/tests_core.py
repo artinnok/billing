@@ -75,7 +75,7 @@ class TransactionTestCase(BaseTestCase):
         old_transaction_count = Transaction.objects.count()
 
         response = self.client.post(
-            '/',
+            reverse('index'),
             data={
                 'sender': ['66904023'],
                 'receiver_list': '66904023',

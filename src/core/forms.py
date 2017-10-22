@@ -5,7 +5,6 @@ from core.models import Profile
 
 class TransactionForm(forms.Form):
     sender = forms.ChoiceField(
-        choices=list(Profile.objects.all().values_list('pk', 'inn')),
         label='Отправитель',
         help_text='Выберите ИНН отправителя',
     )
@@ -19,6 +18,10 @@ class TransactionForm(forms.Form):
         label='Сумма перевода',
         help_text='С точностью до 2 знаков',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['sender'].choices = list(Profile.objects.all().values_list('pk', 'inn'))
 
     def clean_receiver_list(self):
         try:
