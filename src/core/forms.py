@@ -28,17 +28,17 @@ class TransactionForm(forms.Form):
         try:
             receiver_list = self.cleaned_data['receiver_list'].split(',')
 
-            receiver_list = set([item for item in receiver_list if item])
+            receiver_list = set([item.strip() for item in receiver_list if item])
 
             rel_receiver_list = set(Profile.objects.filter(inn__in=receiver_list).values_list('inn', flat=True))
 
-            substract = receiver_list - rel_receiver_list
+            subtract = receiver_list - rel_receiver_list
 
-            if substract == set():
+            if subtract == set():
                 return receiver_list
 
             raise forms.ValidationError(
-                message='Users with this INN {} not found'.format(list(substract)),
+                message='Users with this INN {} not found'.format(sorted(list(subtract))),
                 code='some_users_not_found',
             )
 

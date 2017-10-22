@@ -22,25 +22,22 @@ class BaseTestCase(TestCase):
 
 class TransactionTestCase(BaseTestCase):
 
-    @patch('core.forms.Profile')
-    def test_some_users_not_found(self, mock):
-        mock.objects.all.return_value.values_list.return_value = [
-            ('45192278', '45192278'),
-        ]
-
+    def test_some_users_not_found(self):
         response = self.client.post(
             reverse('index'),
             data={
-                'sender': '45192278',
+                'sender': '12',
                 'receiver_list': '1, 2',
                 'amount': 10.00,
             },
         )
 
         expected = {
-            'receiver_list': [
-                "Users with this INN ['1', ' 2'] not found"
-            ]
+            'errors': {
+                'receiver_list': [
+                    "Users with this INN ['1', '2'] not found"
+                ]
+            }
         }
 
         self.assertEqual(expected, response.json())
@@ -49,7 +46,7 @@ class TransactionTestCase(BaseTestCase):
         response = self.client.post(
             reverse('index'),
             data={
-                'sender': '10',
+                'sender': '100',
                 'receiver_list': '45192278',
                 'amount': 10.00,
             },
@@ -58,26 +55,18 @@ class TransactionTestCase(BaseTestCase):
         expected = {
             'errors': {
                 'sender': [
-                    'Select a valid choice. 10 is not one of the available choices.'
+                    'Select a valid choice. 100 is not one of the available choices.'
                 ]
             }
         }
 
         self.assertEqual(expected, response.json())
 
-    @patch('core.forms.Profile')
-    def test_not_enough_funds(self, mock):
-        mock.objects.all.return_value.values_list.return_value = [
-            ('387068077', '387068077'),
-        ]
-        mock.objects.filter.return_value.values_list.return_value = ['45192278']
-        mock.objects.get.return_value.balance = 10.00
-        mock.DoesNotExist = ObjectDoesNotExist
-
+    def test_not_enough_funds(self):
         response = self.client.post(
             reverse('index'),
             data={
-                'sender': '387068077',
+                'sender': '34',
                 'receiver_list': '45192278',
                 'amount': 100.00,
             },
@@ -99,9 +88,9 @@ class TransactionTestCase(BaseTestCase):
         response = self.client.post(
             reverse('index'),
             data={
-                'sender': '66904023',
-                'receiver_list': '66904023',
-                'amount': 10.00,
+                'sender': '12',
+                'receiver_list': '66904023, 2000139',
+                'amount': 50.00,
             },
         )
 
@@ -109,5 +98,7 @@ class TransactionTestCase(BaseTestCase):
             'success': True,
         }
 
-        self.assertEqual(old_transaction_count + 1, Transaction.objects.count())
         self.assertEqual(expected, response.json())
+        self.assertEqual(old_transaction_count + 2, Transaction.objects.count())
+        self.assertEqual(25.00, Transaction.objects.get(pk=2).amount)
+        self.assertEqual(25.00, Transaction.objects.get(pk=3).amount)
