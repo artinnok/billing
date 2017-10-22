@@ -31,4 +31,6 @@ class IndexView(FormView):
     def form_invalid(self, form):
         return JsonResponse({
             'errors': form.errors,
-        })
+        },
+            status=400,
+        )

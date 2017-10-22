@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
-from django import forms
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 
 from core.models import Transaction
 
@@ -19,57 +19,79 @@ class BaseTestCase(TestCase):
 
         self.client = Client()
 
-        self.patcher = patch('core.forms.Profile')
-        self.mock = self.patcher.start()
-        self.mock.objects.all.return_value.values_list.return_value = [('45192278', '1')]
-
-    def tearDown(self):
-        self.patcher.stop()
-
 
 class TransactionTestCase(BaseTestCase):
 
-    def test_some_users_not_found(self):
-        try:
-            response = self.client.post(
-                reverse('index'),
-                data={
-                    'sender': '45192278',
-                    'receiver_list': '1, 2',
-                    'amount': 10.00,
-                },
-            )
+    @patch('core.forms.Profile')
+    def test_some_users_not_found(self, mock):
+        mock.objects.all.return_value.values_list.return_value = [
+            ('45192278', '45192278'),
+        ]
 
-        except (forms.ValidationError, KeyError):
-            self.fail()
+        response = self.client.post(
+            reverse('index'),
+            data={
+                'sender': '45192278',
+                'receiver_list': '1, 2',
+                'amount': 10.00,
+            },
+        )
+
+        expected = {
+            'receiver_list': [
+                "Users with this INN ['1', ' 2'] not found"
+            ]
+        }
+
+        self.assertEqual(expected, response.json())
 
     def test_profile_not_found(self):
-        try:
-            response = self.client.post(
-                reverse('index'),
-                data={
-                    'sender': '10',
-                    'receiver_list': '45192278',
-                    'amount': 10.00,
-                },
-            )
+        response = self.client.post(
+            reverse('index'),
+            data={
+                'sender': '10',
+                'receiver_list': '45192278',
+                'amount': 10.00,
+            },
+        )
 
-        except (forms.ValidationError, KeyError):
-            self.fail()
+        expected = {
+            'errors': {
+                'sender': [
+                    'Select a valid choice. 10 is not one of the available choices.'
+                ]
+            }
+        }
 
-    def test_not_enough_funds(self):
-        try:
-            response = self.client.post(
-                reverse('index'),
-                data={
-                    'sender': '66904023',
-                    'receiver_list': '45192278',
-                    'amount': 10.00,
-                },
-            )
+        self.assertEqual(expected, response.json())
 
-        except (forms.ValidationError, KeyError):
-            self.fail()
+    @patch('core.forms.Profile')
+    def test_not_enough_funds(self, mock):
+        mock.objects.all.return_value.values_list.return_value = [
+            ('387068077', '387068077'),
+        ]
+        mock.objects.filter.return_value.values_list.return_value = ['45192278']
+        mock.objects.get.return_value.balance = 10.00
+        mock.DoesNotExist = ObjectDoesNotExist
+
+        response = self.client.post(
+            reverse('index'),
+            data={
+                'sender': '387068077',
+                'receiver_list': '45192278',
+                'amount': 100.00,
+            },
+        )
+
+        expected = {
+            'errors': {
+                '__all__': [
+                    'Not enough funds'
+                ]
+            }
+        }
+
+        self.assertEqual(expected, response.json())
 
     def test_success(self):
         old_transaction_count = Transaction.objects.count()
@@ -77,7 +99,7 @@ class TransactionTestCase(BaseTestCase):
         response = self.client.post(
             reverse('index'),
             data={
-                'sender': ['66904023'],
+                'sender': '66904023',
                 'receiver_list': '66904023',
                 'amount': 10.00,
             },

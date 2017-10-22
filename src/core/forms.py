@@ -3,10 +3,15 @@ from django import forms
 from core.models import Profile
 
 
+def get_sender_choices():
+    return list(Profile.objects.all().values_list('pk', 'inn'))
+
+
 class TransactionForm(forms.Form):
     sender = forms.ChoiceField(
         label='Отправитель',
         help_text='Выберите ИНН отправителя',
+        choices=get_sender_choices,
     )
     receiver_list = forms.CharField(
         label='Список получателей',
@@ -18,10 +23,6 @@ class TransactionForm(forms.Form):
         label='Сумма перевода',
         help_text='С точностью до 2 знаков',
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['sender'].choices = list(Profile.objects.all().values_list('pk', 'inn'))
 
     def clean_receiver_list(self):
         try:
