@@ -11,11 +11,13 @@ class Profile(models.Model):
     inn = models.CharField(
         verbose_name='ИНН',
         max_length=12,
+        blank=True,
     )
     balance = models.DecimalField(
         verbose_name='баланс',
         max_digits=12,
         decimal_places=2,
+        default=0,
     )
 
     class Meta:
