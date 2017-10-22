@@ -42,7 +42,11 @@ $(document).ready(function () {
         amount: amount
       },
       function (response) {
-        console.log(response);
+        if (response.success === true) {
+          alert('Перевод успешно выполнен!');
+        } else {
+          alert(JSON.stringify(response.errors, null, 4));
+        }
       }
     )
   });

@@ -21,21 +21,25 @@ class TransactionForm(forms.Form):
     )
 
     def clean_receiver_list(self):
-        receiver_list = self.cleaned_data['receiver_list'].split(',')
+        try:
+            receiver_list = self.cleaned_data['receiver_list'].split(',')
 
-        receiver_list = set([item for item in receiver_list if item])
+            receiver_list = set([item for item in receiver_list if item])
 
-        rel_receiver_list = set(Profile.objects.filter(inn__in=receiver_list).values_list('inn', flat=True))
+            rel_receiver_list = set(Profile.objects.filter(inn__in=receiver_list).values_list('inn', flat=True))
 
-        substract = receiver_list - rel_receiver_list
+            substract = receiver_list - rel_receiver_list
 
-        if substract == set():
-            return receiver_list
+            if substract == set():
+                return receiver_list
 
-        raise forms.ValidationError(
-            message='Users with this INN {} not found'.format(list(substract)),
-            code='some_users_not_found',
-        )
+            raise forms.ValidationError(
+                message='Users with this INN {} not found'.format(list(substract)),
+                code='some_users_not_found',
+            )
+
+        except KeyError:
+            pass
 
     def clean(self):
         try:
@@ -47,8 +51,13 @@ class TransactionForm(forms.Form):
                     code='not_enough_funds',
                 )
 
+            return self.cleaned_data
+
         except Profile.DoesNotExist:
             raise forms.ValidationError(
                 message='Profile not found',
                 code='profile_not_found',
             )
+
+        except KeyError:
+            pass
