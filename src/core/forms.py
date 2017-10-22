@@ -24,7 +24,7 @@ class TransactionForm(forms.Form):
 
         receiver_list = set([item for item in receiver_list if item])
 
-        rel_receiver_list = set(Profile.objects.filter(pk__in=receiver_list).values_list('pk', flat=True))
+        rel_receiver_list = set(Profile.objects.filter(inn__in=receiver_list).values_list('inn', flat=True))
 
         substract = receiver_list - rel_receiver_list
 
@@ -32,7 +32,7 @@ class TransactionForm(forms.Form):
             return receiver_list
 
         raise forms.ValidationError(
-            message='This users {} not found'.format(substract),
+            message='Users with this INN {} not found'.format(list(substract)),
             code='some_users_not_found',
         )
 
