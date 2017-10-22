@@ -2,6 +2,23 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 
+USER_MODEL = get_user_model()
+
+
+class ProfileManager(models.Manager):
+    def create_user(self, username, email, password, **kwargs):
+        user = USER_MODEL.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+        )
+
+        return self.create(
+            user=user,
+            **kwargs,
+        )
+
+
 class Profile(models.Model):
     user = models.OneToOneField(
         get_user_model(),
@@ -19,6 +36,8 @@ class Profile(models.Model):
         decimal_places=2,
         default=0,
     )
+
+    objects = ProfileManager()
 
     class Meta:
         verbose_name = 'юзер'
