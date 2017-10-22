@@ -4,7 +4,7 @@ from core.models import Profile
 
 
 class TransactionForm(forms.Form):
-    sender = forms.MultipleChoiceField(
+    sender = forms.ChoiceField(
         choices=list(Profile.objects.all().values_list('pk', 'inn')),
         label='Отправитель',
     )
@@ -22,5 +22,36 @@ class TransactionForm(forms.Form):
     def clean_receiver_list(self):
         receiver_list = self.cleaned_data['receiver_list'].split(',')
 
-        return [item for item in receiver_list if item]
+        receiver_list = set([item for item in receiver_list if item])
 
+        rel_receiver_list = set(Profile.objects.filter(pk__in=receiver_list).values_list('pk', flat=True))
+
+        substract = receiver_list - rel_receiver_list
+
+        if substract == set():
+            return receiver_list
+
+        raise forms.ValidationError(
+            message='This users {} not found'.format(substract),
+            code='some_users_not_found',
+        )
+
+    def clean(self):
+        sender = self.cleaned_data['sender']
+
+        try:
+            profile = Profile.objects.get(pk=sender)
+
+            if profile.balance < self.cleaned_data['amount']:
+                raise forms.ValidationError(
+                    message='Not enough funds',
+                    code='not_enough_funds',
+                )
+
+            return
+
+        except Profile.DoesNotExist:
+            raise forms.ValidationError(
+                message='Profile not found',
+                code='profile_not_found',
+            )
