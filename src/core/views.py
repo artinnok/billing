@@ -27,3 +27,8 @@ class IndexView(FormView):
         return JsonResponse({
             'success': True,
         })
+
+    def form_invalid(self, form):
+        return JsonResponse({
+            'errors': form.errors,
+        })
