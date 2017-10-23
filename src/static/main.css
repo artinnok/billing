@@ -8,3 +8,13 @@ html, .body, .main {
     align-items: center;
     justify-content: center;
 }
+
+.billing__help {
+    font-size: 11px;
+    color: #999999;
+    margin: 0;
+}
+
+.billing__field {
+    margin-bottom: 10px;
+}

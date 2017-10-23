@@ -18,6 +18,9 @@ class IndexView(FormView):
             sender.balance -= per_receiver_amount
             sender.save()
 
+            item.balance += per_receiver_amount
+            item.save()
+
             Transaction.objects.create(
                 sender=sender,
                 amount=per_receiver_amount,
@@ -31,6 +34,4 @@ class IndexView(FormView):
     def form_invalid(self, form):
         return JsonResponse({
             'errors': form.errors,
-        },
-            status=400,
-        )
+        })

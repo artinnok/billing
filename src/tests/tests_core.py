@@ -1,9 +1,6 @@
-from unittest.mock import patch
-
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 
 from core.models import Transaction
 

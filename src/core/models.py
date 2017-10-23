@@ -6,11 +6,13 @@ USER_MODEL = get_user_model()
 
 
 class ProfileManager(models.Manager):
-    def create_user(self, username, email, password, **kwargs):
+    def create_user(self, username, email, password, first_name='', last_name='', **kwargs):
         user = USER_MODEL.objects.create_user(
             username=username,
             email=email,
             password=password,
+            first_name=first_name,
+            last_name=last_name,
         )
 
         return self.create(
