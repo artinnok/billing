@@ -4,7 +4,7 @@
 * Clone project - `git clone git@github.com:artinnok/billing.git`
 * Install [virtualenv](https://virtualenv.pypa.io/en/stable/) and activate it
 * Install Python packages for project - `pip install -r requirements.txt`
-* Fill and create `src/config.env` with this keys:
+* Fill and create `src/config/.env` with this keys:
     * SECRET_KEY - secret key for project, you can generate it [here](https://www.miniwebtool.com/django-secret-key-generator/)
     * DB_HOST - PostgreSQL database host, usually `localhost`
     * DB_NAME - PostgreSQL database name
